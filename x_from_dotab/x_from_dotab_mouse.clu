@@ -1,0 +1,99 @@
+	DefVarsE3();
+	SetMode(E3_DRAW_VEC_AS_ARROW);
+	DrawFrame(3);
+// a 2-D vector	
+	:Yellow;
+	a=VecE3(0, 2, 0);
+	:a=a.e1*e1+a.e2*e2;	?a;
+// a 2-D vector	
+	:Blue;
+	b=VecE3(1.414, 1, 0);
+	:b=b.e1*e1+b.e2*e2;	?b;
+	
+// a 2-D vector	
+	:Green;
+	x=VecE3(1);
+	:x=x.e1*e1+x.e2*e2;	?x;
+	
+// check for special cases, insufficient information: a.x and b.x = 0
+
+	if (x==0)	// trap mouse mode returning 0 on startup
+	{
+		x=VecE3(0,0,0);
+		void SetPointSize(10); 
+		void DrawPoint(x);
+	}
+	else if (a.b==0)	// check for orthoganal a,b to avoid divide by zero error
+	{
+		:White;
+		y=a.x*a/(a.a)+b.x*b/(b.b);
+		void SetPointSize(10); 
+		void DrawPoint(y);
+	}
+	
+	else
+	{
+
+// Vector Algebra Starts here
+// some prelimianary "constructive" intermedaite calculations
+// x only used in the problem definition form of a.x, b.x
+	
+// x projection on a	
+	:White;
+	:c=(a.x/(a.a))*a;	?c;
+// x projection on b	
+	:Red;
+	:d=(b.x/(b.b))*b;	?d;
+	
+// c projection on b (intermedaite)	
+	:DGreen;
+	:ep=((c.b)/(b.b))*b;	?ep;	
+// ep scaled  by simialr triangles to get intersection of orthoganl at c with b		
+	:Magenta;
+//	:e=((c.c)/(ep.b))*b;	?e; // simplify
+	:e=((c.c)/(c.b))*b;	?e;		 	
+	void DrawLine(e,c);	
+				
+// d projection on a (intermedaite)	
+	:DGreen;
+	:fp=((d.a)/(a.a))*a;	?fp;	
+// fp scaled by simialr triangles to get intersection of orthoganl at d with a	
+	:DOrange;
+//	:f=((d.d)/(fp.a))*a;	?f;	// simplify
+	:f=((d.d)/(d.a))*a;	?f;	
+	void DrawLine(f,d); 
+			
+// some Geometric Algebra
+
+// barycentric coordinate line wedge product relations
+//  d^f=d^x+x^f => d^f=d^x-f^x => d^f=(d-f)^x
+//  c^e=c^x+x^e => c^e=c^x-e^x => c^e=(c-e)^x
+// above pair define same x, so combine by subtracting equations:
+//  d^f-c^e=(d-f)^x-(c-e)^x => d^f-c^e=((d-f)-(c-e))^x
+//  use substitution g=((d-f)-(c-e)) for more compact equation
+//  d^f-c^e=(d-f)^x-(c-e)^x =>  d^f-c^e=g^x
+// "complete the geometric product" g*x=g^x+g.x => g^x=g*x-g.x to allow dividing out g
+// d^f-c^e=g*x-g.x => g*x=d^f-c^e+g.x
+// x=g/(g.g)*(d^f-c^e+g.x)
+// solving the problem since c,d,e,f are products of the given vectors a, b
+// with the given scalars a.x, b.x and various (dot) products of a and b
+// g is a linear combination of a, b => g.x is known in terms of the givens 
+	g=((d-f)-(c-e));
+// 
+	y=g/(g.g)*((d^f)-(c^e)+(g.x)); y?;
+// plot caclulated y to see if its really equal to input x
+	:White;	
+	void SetPointSize(10); 
+	void DrawPoint(y);
+// extend barylines to y for obtuse a, b, x not in interior...	
+		:Magenta;
+		void DrawLine(c,y);
+		:DOrange;
+		void DrawLine(d,y); 
+	}
+
+//	circular definition problem? x dot with dual: x.(a.i) => (x^a)*i
+//	yp=((a/abs(a)+b/abs(b))*(a.x/abs(a)+b.x/abs(b))-((a/abs(a)+b/abs(b)).(e12))*x.((a/abs(a)+b/abs(b)).(e12)))/((a/abs(a)+b/abs(b))^^2);yp?;
+//	ym=((a/abs(a)-b/abs(b))*(a.x/abs(a)-b.x/abs(b))-((a/abs(a)-b/abs(b)).(e12))*x^(((a/abs(a)-b/abs(b)).e12)))/((a/abs(a)-b/abs(b))^^2);ym?;
+//		y=yp+ym; y?;
+//
